@@ -266,7 +266,7 @@ class Ingresar1: # Esta clase crea el cuadro de texto para introducir el Nicknam
 
 class Ingresartexto: # Esta clase crea el cuadro de texto "ingresa nickname", recibe los parametros de posicion y tamaño y crea el texto
 
-    def __init__(self, x, y, w, h, text='Ingrese un Nickname desde hasta 7 caracteres'):
+    def __init__(self, x, y, w, h, text='Ingrese un Nickname de hasta 7 caracteres'):
         self.rect = pygame.Rect(x, y, w, h)
         self.color = blue
         self.text = text
