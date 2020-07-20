@@ -1,0 +1,68 @@
+Que muestra un resultado por si misma
+Que almacena un resultado en otra variable
+No es un termino de programacion
+Aquella que da un resultado matematico
+Escribir la sentencia de creacion de funcion
+Como se llama la funcion
+Un tipo de funcion
+Nombre de las funciones predeterminadas
+Una variable temporal
+Una variable preestablecida
+Una variable almacenada en un input
+Un valor de retorno
+Bool
+List
+Int
+Str
+Falta anadir otro igual antes del 0
+El bucle es infinito
+While se ubica con mayuscula
+No hay ningun error
+Error de seleccion
+Error en tiempo de ejecucion
+Error de sintaxis
+Error semantico
+Python
+Yukip
+Rotoka	
+Piraha
+Return, pass, for, def
+Or, and, lambda, print
+Raise, if, break, while
+Not, in, global , else
+"238"
+"13"
+13
+Error
+La flexibilidad
+Se ejecutan despues de traducirse
+El lenguaje de maquina
+El lenguaje de ensamblaje
+Estructura
+Significado
+Estructura y significado
+La palabra no existe
+Se puede utilizar como variables
+Empieza con mayuscula
+Cumple la misma función
+Son articulos
+**
+***
+^
+*+
+Tomar el entero menor mas próximo
+Tomar el entero mayor mas próximo
+Multiplicarlo por 0
+Dejarlo como esta
+A la variable contador se le agrega 1
+La variable contador se tranforma en 1
+Error sintactico
+Error semantico
+4
+2
+0
+36
+Bools
+Ninguna por iniciar en mayuscula
+Strings
+Floats

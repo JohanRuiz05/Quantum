@@ -1,0 +1,84 @@
+﻿Todas son correctas
+Las funciones añadidas mediante  def
+Las funciones del programa
+Las funciones matematicas 
+Definir un bloque de codigo bajo un nombre
+Ninguna
+Ahorrar tiempo programando
+Llamar a otras funciones
+Usando global y llamandola en el programa
+Solo se vuelve a usar despues
+No se puede
+Se iguala a otra variable en la funcion
+El valor que se le da a una funcion al llamarla
+Un valor que designa la funcion
+El valor de salida de una funcion
+Una variable local
+Mostrar un resultado de Si o No
+Aproximar los resultados
+Imprimir un valor al azar de los inputs
+Lo mismo que cualquier otra funcion
+El valor del argumento de una funcion
+Una variable local
+Lo que delimita la informacion de la funcion
+Un valor mas dentro del programa
+Elemento recorrible
+Elemento identificador
+Espacio reservado en la memoria
+Error de Software
+Int
+String
+Bool
+Cualquiera de las respuestas
+Int
+String
+Booleano
+Cualquiera de las respuestas
+Cualquiera de las respuestas
+String
+Bool
+Int
+Añadiendo un elemento a una lista
+Creando una Lista
+Actualizando un elemento
+Accediendo a un elemento de una lista
+Repetir un bloque de instrucciones
+Iniciar nuevamente un programa
+Mostrar en pantalla una linea de texto
+Asignar un valor a una variable
+No usar dos puntos despues del comando
+No usar corchetes
+No usar comillas en una cadena de texto
+No usar funciones
+Range
+List
+Len
+In
+Contador
+Testigo
+Acumulador
+Función
+Variables de control
+Variables de relación
+Variables de representación
+Variables globales
+Modificar el valor de a al recorrer el ciclo
+Modificar el valor de a antes dell ciclo
+No habria un bucle infinito
+No existe forma de corregirlo
+En el ciclo For
+En el ciclo While
+En los ciclos For y While
+En ninguno de los dos ciclos
+for i in range (5):
+for i in 5
+for i in range (5)
+for i in range 5:
+while a <= 5:
+while a = 5:
+while a > 5:
+while a < 5:
+Floats
+Decimals
+Enteros
+Bool

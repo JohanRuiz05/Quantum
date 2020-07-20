@@ -1,0 +1,21 @@
+﻿Como se llama una funcion?
+Como se ejecuta la funcion dentro de un programa?
+Que es una funcion recursiva?
+Que es un bloque?
+Cuando ocurre el None?
+Cuando podemos usar una variable local?
+Los elementos de una Tupla estan encerrados dentro de:
+Los elementos de una Lista estan encerrados dentro de:
+Los elementos de un Diccionario estan encerrados dentro de:
+Los elementos de una Tupla deben ser valores de tipo:
+Los elementos de una Lista deben ser valores de tipo:
+Los elementos de una Tupla deben estar separados por:
+Una Tupla es un conjunto de elementos:
+Una Lista es un conjunto de elementos:
+Un Diccionario es una estructura de almacenamiento de datos:
+Que comando se puede usar para que una variable dentro de una funcion pueda ser usada en el programa?
+Cual de los siguientes comandos representa un ciclo?
+Cual de los siguientes comandos representa un ciclo condicional?
+Cual de estos terminos es sinonimo de repeticion en programacion?
+Si "a" es una lista de 4 elementos, ¿Cuantas veces se repite el ciclo "for i in range (a)"?
+Cual no es un tipo de variable de Python?

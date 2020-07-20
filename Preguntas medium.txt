@@ -1,0 +1,21 @@
+﻿A que se puede llamar una funcion?
+Cual es el fin de crear una funcion?
+Como se puede usar una variable que ha sido definida fuera de una funcion?
+Que es un argumento?
+Que hace una funcion booleana?
+Que es un parametro?
+Un elemento iterable es un:
+El indice de los elementos de una tupla esta dado por un valor de tipo:
+El indice de los elementos de una lista esta dado por un valor de tipo:
+El indice de los elementos de un diccionario esta dado por un valor de tipo:
+En el siguiente ejemplo, Lista[0] = "Nombre", se esta:
+Cual es la funcion de un bucle o ciclo?
+Cual de los siguientes puede ser un error al programar un ciclo?
+Cual de las siguientes funciones de Python permite repetir un ciclo For tantas veces como se le indique?
+Cual de los terminos se refiere a una variable que cambia el numero de veces que se repita un ciclo?
+Como se conocen las variables dentro de un ciclo?
+Si una variable llamada "a" es igual a 0. ¿Como evitar que el ciclo "while a == 0:" sea infinito?
+En cual ciclo se define el número de repeticiones antes de empezar el bucle?
+Si se quiere mostrar en pantalla la palabra "Hola" 5 veces con un Ciclo For, una posible sintaxis basica del bucle seria:
+Si una variable "a" es igual a 1 y se quiere usar un ciclo While para que cuente hasta 5 con un bloque de instrucciones predeterminado, una posible sintaxis basica del bucle seria:
+Que tipo de variable son los numeros decimales?

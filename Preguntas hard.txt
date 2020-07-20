@@ -1,0 +1,17 @@
+¿Que es una funcion productiva?
+¿Que es definir una funcion?
+¿Que tipo de variable esta encargada de almacenar un valor intermedio en un calculo complejo?
+¿Que tipo de variable determina la ejecución o no ejecución de un ciclo While?
+¿Que error presenta la sintaxis basica del ciclo "while a = 0: "?
+¿Cual no es un tipo de error en Python?
+¿Cual no es un  lenguaje natural?
+¿Cual conjunto no cumple con las palabras reservadas de Python?
+De "2"+"3"+"8" se obtiene:
+Una de las grandes ventajas de un lenguaje de alto nivel como Python es:
+¿A que hace referencia "Sintaxis"?
+Ninguna palabra reservada de Python:
+El signo de potenciación en Python es:
+¿A que hace referencia redondear a la baja un numero decimal?
+¿Que significa contador += 1?
+¿Cual es el resultado de (2+2)* 2**2 segun la jerarquia de Python?
+¿Que tipo de variable son True y False?

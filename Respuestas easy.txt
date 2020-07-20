@@ -1,0 +1,84 @@
+﻿Escribir el nombre de esta junto con su argumento
+Copiar y pegar la funcion completa
+Definiendola otra vez
+Solo se debe escribir el nombre de la misma
+Cuando se le llama desde el programa
+De arriba hacia abajo
+Al final del programa
+Se ejecuta antes que lo demas
+Aquella funcion que se llama a si misma
+Funcion que se repite varias veces en el programa
+La encargada de hacer la misma tarea varias veces
+Que ha sido usada en varios programas diferentes
+Grupo de sentencias con una misma sangria
+Conjunto de sentencias con el mismo comando
+Es una forma de referirse a una funcion
+No es un termino empleado en programacion
+Cuando una funcion no tiene argumento o return
+Cuando no hay un input valido
+Cuando la funcion encuentra un error de sintaxis
+Cuando no se llama a la funcion
+Solamente dentro de la funcion
+En cualquier lugar del programa
+En la funcion y cualquier parte del programa
+En varias funciones a la vez
+( )
+[ ]
+{ }
+ :
+[ ]
+( )
+ :
+{ }
+{ }
+ :
+[ ]
+( )
+Todas las respuestas son correctas
+String
+Entero
+Booleano
+Todas las respuestas son correctas
+String
+Entero
+Booleano
+Coma (,)
+Punto y coma (;)
+Dos puntos (:)
+Espacio
+Inmutables y ordenados
+Modificables y desordenados
+Modificables y ordenados
+Inmutables y desordenados
+Modificables y ordenados por indice
+Inmutables y ordenados por indice
+Modificables y desordenados
+Inmutables y desordenados
+Modificables y ordenados sin indice
+Modificables y desordenados
+Inmutables y ordenados sin indice
+Inmutables y desordenados
+Global
+While
+Import
+In
+While
+Print
+If
+Pass
+While
+For
+If
+Elif
+Iteracion
+Indentacion
+Interacion
+Sangrado
+Mostrara un error
+4 veces
+16 veces
+Sera un bucle infinito
+Enteros
+Tuple
+String
+List

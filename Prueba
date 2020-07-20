@@ -1,0 +1,1601 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul 13 13:06:31 2020
+
+@author: johansebastianruizaraque
+"""
+import pygame
+import sys
+import pygame.locals
+import random
+from operator import itemgetter
+
+
+pygame.init() # Inicializa todos los modulos importados de pygame
+
+#Se crean las variables globales del programa---------------------------------------------
+
+usuarios = [] #Lista para guardar el nombre del usuario
+puntajes = [] #Lista para guardar el puntaje
+diccionarioPuntajes = {} #Diccionario para guardar nombre y puntajes
+listaordenada = False #Lista que ordena los puntajes
+text2="" #Variable en caso de que el usuario no meta un Nickname
+
+listaEnemigos = [] #Lista para cargar imagenes de enemigos
+listaMunicion = [] #Lista para saber si se disparo una bala y para borrarla cuando impacte al enemigo
+
+acertado= 0 #Variable para saber si la respuesta es la correcta
+incorrecto = 0 # Lo mismo de arriba pero si es incorrecta
+
+bancoRespuestas = {} #Diccionario para guardar las 4 respuestas del txt
+a = [] #Lista para guardar la respuesta correcta
+
+ventana = pygame.display.set_mode((1300, 650)) #Crea un ventana en pygame de tamaño 1300 x 650
+
+#Crea los diferentes colores a usar--------------------------------------------------------
+
+color= pygame.Color(255,255,0)
+COLOR_INACTIVE = pygame.Color(0,0,0)
+COLOR_ACTIVE = pygame.Color(200,0,0)
+white= pygame.Color(250,250,250)
+black= pygame.Color(0,0,0)
+blue = pygame.Color(0,100,250)
+yellow = pygame.Color(255,255,0)
+red = pygame.Color(255,0,0)
+
+#Crea las diferentes fuentes de letra a usar --------------------------------------------------
+
+FONT = pygame.font.Font(None, 28)
+FONT_MENU = pygame.font.Font(None, 36)
+WIDE_FONT = pygame.font.SysFont("Wide Latin", 80) 
+
+
+#Se empiezan a declarar las clases------------------------------------------------------------
+
+
+
+#Botones y cuadros de texto del menú, instrucciones y records----------------------------------------------------------------------
+
+class Instrucciones:# Esta clase crea el boton "Instrucciones" del menú, recibe los parametros de posicion y tamaño y crea el texto
+
+    def __init__(self, x, y, w, h, text='¿Cómo se juega?'):
+        
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.txt_surface = FONT_MENU.render(text, True, self.color)
+        
+
+    def handle_event(self, event):#Esta función o método llama la funcion instrucciones y cierra la ventan menú en caso de ser accionado el boton
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                instrucciones()
+                pygame.quit()
+                
+            else:
+
+                pass
+            
+    def update(self):
+
+        pass
+
+    def draw(self, ventana):
+        pygame.draw.rect(ventana, white, self.rect)#Este metodo dibuja el boton 
+        ventana.blit(self.txt_surface, (self.rect.x+16, self.rect.y+10))
+
+class Jugar:# Esta clase crea el boton "Jugar" del menú, recibe los parametros de posicion y tamaño y crea el texto
+
+    def __init__(self, x, y, w, h, text='Jugar'):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.txt_surface = FONT_MENU.render(text, True, self.color)
+       
+
+    def handle_event(self, event):#Esta función o método llama la funcion ingresar y cierra la ventan menú en caso de ser accionado el boton
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                ingresar()
+                pygame.quit()
+               
+            else:
+                
+                pass
+
+    def update(self):
+       
+        pass
+
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, white, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+80, self.rect.y+10))
+
+class Records: # Esta clase crea el boton "Records" del menú, recibe los parametros de posicion y tamaño y crea el texto
+
+    def __init__(self, x, y, w, h, text='Records'):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.txt_surface = FONT_MENU.render(text, True, self.color)
+       
+
+    def handle_event(self, event): #Esta función o método llama la funcion records y cierra la ventan menú en caso de ser accionado el boton
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                
+                records()
+                pygame.quit()
+                
+            else:
+                
+                pass
+
+    def update(self):
+        
+        pass
+    
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, white, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+70, self.rect.y+10))
+
+class Salir: # Esta clase crea el boton "Salir" de instrucciones y records, recibe los parametros de posicion y tamaño y crea el texto
+
+    def __init__(self, x, y, w, h, text='Salir'):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = black
+        self.text = text
+        self.txt_surface = FONT.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event): #Esta función o método llama la funcion menú y cierra la ventana desde donde se accione 
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                menu()
+                pygame.quit()
+                self.active = not self.active
+            else:
+                self.active = False
+                
+            
+    def update(self):
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, blue, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+80, self.rect.y+10))
+
+class Siguiente: # Esta clase crea el boton "Siguiente" de instrucciones, recibe los parametros de posicion y tamaño y crea el texto
+
+    def __init__(self, x, y, w, h, text='Siguiente'):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = black
+        self.text = text
+        self.txt_surface = FONT.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event): #Esta función o método llama la funcion instrucciones1 y cierra la ventana instrucciones
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                instrucciones1()
+                pygame.quit()
+                self.active = not self.active
+            else:
+                self.active = False
+            
+    def update(self):
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, yellow, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+50, self.rect.y+10))
+
+class Atras1: # Esta clase crea el boton "Atras" de instrucciones1, recibe los parametros de posicion y tamaño y crea el texto
+
+    def __init__(self, x, y, w, h, text='Atrás'):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = white
+        self.text = text
+        self.txt_surface = FONT.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event): #Esta función o método llama la funcion instrucciones y cierra la ventana instrucciones1
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                instrucciones()
+                pygame.quit()
+                self.active = not self.active
+            else:
+                self.active = False
+            
+    def update(self):
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, black, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+80, self.rect.y+10))
+
+        
+class Ingresar1: # Esta clase crea el cuadro de texto para introducir el Nickname, recibe los parametros de posicion y tamaño y crea el texto vacio
+
+    def __init__(self, x, y, w, h, text1=''):
+
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text1 = text1
+        self.txt_surface = FONT.render(text1, True, yellow)
+        self.active = False
+
+    def handle_event(self, event): #Esta función o método activa el cuadro de texto y captura lo ingresado por teclado en la variable global text2
+
+        #global contador
+        global text2
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.active = not self.active
+            else:
+                self.active = False
+            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                contador = 0
+                for au in self.text1:
+                    contador += 1
+                if event.key == pygame.K_RETURN and contador < 8:
+                    self.text1 = ''
+                if event.key == pygame.K_BACKSPACE:
+                    self.text1 = self.text[:-1]
+                if contador < 8:
+                    self.text1 += event.unicode
+                    text2 = self.text1
+                self.txt_surface = FONT.render(self.text1, True, self.color )
+
+    def update(self):
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, ventana): #Este metodo dibuja el cuadro de texto
+        pygame.draw.rect(ventana, self.color, self.rect, 2)
+        ventana.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+
+
+class Ingresartexto: # Esta clase crea el cuadro de texto "ingresa nickname", recibe los parametros de posicion y tamaño y crea el texto
+
+    def __init__(self, x, y, w, h, text='Ingrese un Nickname desde hasta 7 caracteres'):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = blue
+        self.text = text
+        self.txt_surface = FONT.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.active = not self.active
+            else:
+                self.active = False
+
+    def update(self):
+        width = max(400, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+
+    def draw(self, ventana): #Este metodo dibuja el cuadro de texto
+        pygame.draw.rect(ventana, yellow, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+
+class Ingresaraceptar: # Esta clase crea el boton "Aceptar" para ingresar el nickname, recibe los parametros de posicion y tamaño y crea el texto
+
+
+    def __init__(self, x, y, w, h, text='Aceptar'):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = yellow
+        self.text = text
+        self.txt_surface = FONT.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event): #Esta función o método llama la funcion preguntasProgramacion(juego) y cierra la ventana ingresar
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+
+                usuarios.append(text2)
+                preguntasProgramacion()
+                pygame.quit()
+                self.active = not self.active
+
+            else:
+                self.active = False
+            
+
+    def update(self):
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, ventana):#Este metodo dibuja el cuadro de texto
+        pygame.draw.rect(ventana, blue, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+70, self.rect.y+10))
+        
+# Botones y cuadros de texto de preguntas y respuestas-------------------------------------------------------------------------------------------------
+
+class InputBox1: # Esta clase crea el boton de respuestas 1, recibe los parametros de posicion,tamaño y texto. 
+
+    def __init__(self, x, y, w, h, text):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = white
+        self.text = text
+        self.txt_surface = FONT.render(text, True, black)
+       
+
+    def handle_event(self, event): #Esta función o método modifica las variables de acertado o incorrecto
+        global acertado
+        global incorrecto
+
+        if event.type == pygame.MOUSEBUTTONDOWN and a == bancoRespuestas[1]: #Estos condicionales comparan la respuesta accionada y verifican si es la correcta
+
+            if self.rect.collidepoint(event.pos):
+                acertado = 1
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and a != bancoRespuestas[1]:
+
+            if self.rect.collidepoint(event.pos):
+                incorrecto = 1
+                
+    def update(self):
+        pass
+
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, self.color, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+10, self.rect.y+9))
+        
+
+class InputBox2: # Esta clase crea el boton de respuestas 2, recibe los parametros de posicion,tamaño y texto. 
+
+    def __init__(self, x, y, w, h, text):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = white
+        self.text = text
+        self.txt_surface = FONT.render(text, True, black)
+        
+
+    def handle_event(self, event):  #Esta función o método modifica las variables de acertado o incorrecto
+        global acertado
+        global incorrecto
+
+        if event.type == pygame.MOUSEBUTTONDOWN and a == bancoRespuestas[2]: #Estos condicionales comparan la respuesta accionada y verifican si es la correcta
+
+            if self.rect.collidepoint(event.pos):
+                acertado = 2
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and a != bancoRespuestas[2]:
+
+            if self.rect.collidepoint(event.pos):
+                incorrecto = 2
+
+    def update(self):
+        pass
+
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, self.color, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+10, self.rect.y+9))
+
+class InputBox3: # Esta clase crea el boton de respuestas 3, recibe los parametros de posicion,tamaño y texto.
+
+    def __init__(self, x, y, w, h, text):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = white
+        self.text = text
+        self.txt_surface = FONT.render(text, True, black)
+
+    def handle_event(self, event): #Esta función o método modifica las variables de acertado o incorrecto
+        global acertado
+        global incorrecto
+        
+        if event.type == pygame.MOUSEBUTTONDOWN and a == bancoRespuestas[3]: #Estos condicionales comparan la respuesta accionada y verifican si es la correcta
+            if self.rect.collidepoint(event.pos):
+                acertado = 3                
+                          
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and a != bancoRespuestas[3]:
+
+            if self.rect.collidepoint(event.pos):
+                incorrecto = 3
+                
+    def update(self):
+        pass
+
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, self.color, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+10, self.rect.y+9))
+        
+class InputBox4: # Esta clase crea el boton de respuestas 4, recibe los parametros de posicion,tamaño y texto.
+
+    def __init__(self, x, y, w, h, text):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = white
+        self.text = text
+        self.txt_surface = FONT.render(text, True, black)
+
+    def handle_event(self, event): #Esta función o método modifica las variables de acertado o incorrecto
+        global acertado
+        global incorrecto
+        
+        if event.type == pygame.MOUSEBUTTONDOWN and a == bancoRespuestas[4]: #Estos condicionales comparan la respuesta accionada y verifican si es la correcta
+            if self.rect.collidepoint(event.pos):
+                acertado = 4                          
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and a != bancoRespuestas[4]:
+
+            if self.rect.collidepoint(event.pos):
+                incorrecto = 4
+               
+
+    def update(self):
+        pass
+
+    def draw(self, ventana): #Este metodo dibuja el boton
+        pygame.draw.rect(ventana, self.color, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+10, self.rect.y+9))
+
+
+
+class InputBoxPregunta: # Esta clase crea el cuadro de texto de las preguntas, recibe los parametros de posicion,tamaño y texto.
+
+    def __init__(self, x, y, w, h,text):
+
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = white
+        self.text = text
+        self.txt_surface = FONT.render(text, True, black)
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                #self.active = not self.active
+                pass
+            else:
+                #self.active = False
+                pass
+            
+
+    def update(self):
+        pass
+
+    def draw(self, ventana): #Este metodo dibuja el cuadro con el texto de la pregunta
+        pygame.draw.rect(ventana, self.color, self.rect)
+        ventana.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+
+
+class InputPreguntas: # Esta clase crea el cuadro de texto  que informa el numero de la pregunta, recibe los parametros de posicion,tamaño y numero de pregunta.
+
+    def __init__(self, x, y, w, h, numeroPregunta):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = black
+        numero = str(numeroPregunta)
+        self.text = "Pregunta: "+numero+"/15"
+        self.txt_surface = FONT.render(self.text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                #self.active = not self.active
+                pass
+            else:
+                #self.active = False
+                pass
+            
+
+    def update(self):
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, ventana): #Este metodo dibuja el cuadro con el texto de la pregunta
+        ventana.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        pygame.draw.rect(ventana, self.color, self.rect,2)
+
+# En esta parte se crean las clases que generan las preguntas y respuestas aleatorias del juego ----------------------------------------------
+
+# Se dividen por grado de dificultad
+
+class PreguntasRespuestasFacil(pygame.sprite.Sprite): # Esta clase abre los txt de preguntas fácil y genera una pregunta y sus respuestas 
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        global a #Esta variable guardará la respuesta correcta
+        global bancoRespuestas #Este diccionario guardará las cuatro respuestas generadas
+
+        # Se inicializan todas las variables------------------
+        
+        self.miArchivo1 = open('Preguntas easy.txt', 'r') #Se abren la preguntas .txt
+        self.contenidoArchivo1 = self.miArchivo1.read()
+        self.miArchivo1.close()
+        self.correctoPf = self.contenidoArchivo1.split('\n')
+
+        self.miArchivo2 = open('Respuestas easy.txt', 'r') #Se abren la respuestas .txt
+        self.contenidoArchivo2 = self.miArchivo2.read()
+        self.miArchivo2.close()
+        self.correctoRf = self.contenidoArchivo2.split('\n')
+
+        self.variacion5 = [] 
+        self.listaCorrectaFacil = []
+        self.posiblesPreF = []
+        self.listarespuestas = []
+        self.posiblesResF = {}
+        self.diccRespuestas = {}
+        self.respuestaCorrecta =""
+
+        self.variacion1 =""
+        self.variacion2 =""
+        self.variacion3 =""
+        self.variacion4 =""
+
+        self.primera = 0
+        self.segunda = 0
+        self.tercera = 0
+
+    def preguntasF1(self): # Se genera aleatoriamente una pregunta
+
+        self.posiblesPreF = self.correctoPf
+        self.variacion5 = random.choice(self.posiblesPreF)
+        self.listaCorrectaFacil = self.posiblesPreF.index (self.variacion5)
+
+    def preguntasF2(self):
+
+        self.variacion5 = random.choice(self.posiblesPreF)
+        self.listaCorrectaFacil = self.posiblesPreF.index (self.variacion5)
+
+    def respuestasF(self): # Genera aleatroriamente las 4 respuestas correspondientes a la pregunta
+
+        global a
+
+        for i in [1]:
+
+            for i in [1]:
+
+                self.listarespuestas.append(self.correctoRf[self.primera])
+                self.respuestaCorrecta = self.listarespuestas[0]
+                a = self.respuestaCorrecta # Se guarda la respuesta correcta
+                self.listarespuestas.append(self.correctoRf[self.primera + 1])
+                self.listarespuestas.append(self.correctoRf[self.primera + 2])
+                self.listarespuestas.append(self.correctoRf[self.primera + 3])
+                self.posiblesResF[i] = self.listarespuestas
+                i += 1
+        
+        self.var1 = self.listarespuestas.copy()
+        self.listarespuestas.remove(self.correctoRf[self.primera])
+        self.listarespuestas.remove(self.correctoRf[self.primera + 1])
+        self.listarespuestas.remove(self.correctoRf[self.primera + 2])
+        self.listarespuestas.remove(self.correctoRf[self.primera + 3])
+
+        
+        self.variacion1 = random.choice(self.var1) # Se generan las cuatro respuestas
+        self.var1.remove(self.variacion1)
+        
+        self.variacion2 = random.choice(self.var1)
+        self.var1.remove(self.variacion2)
+        
+        self.variacion3 = random.choice(self.var1)
+        self.var1.remove(self.variacion3)
+        
+        self.variacion4 = random.choice(self.var1)
+        self.var1.remove(self.variacion4)
+    
+
+    def generarPreguntasFacil(self): #llama la funcion que llena el diccionario de bancoRespuestas y retorna la pregunta y las respuestas
+
+            self.primera=0
+            self.segunda=0
+
+            if self.tercera == 0:
+                self.preguntasF1()
+                self.tercera += 1
+            else:
+                self.preguntasF2()
+
+            while self.segunda <= self.listaCorrectaFacil:
+
+                self.respuestasF()
+                self.primera += 4
+                self.segunda += 1
+    
+            self.comparaRespuestaF()
+            return (self.variacion5,self.variacion1,self.variacion2,self.variacion3,self.variacion4)
+
+    def comparaRespuestaF(self): #Llena el bancoRespuestas con las 4 respuestas
+
+        global bancoRespuestas
+
+        self.diccRespuestas [1] = self.variacion1
+        self.diccRespuestas [2] = self.variacion2
+        self.diccRespuestas [3] = self.variacion3
+        self.diccRespuestas [4] = self.variacion4
+
+        bancoRespuestas = self.diccRespuestas
+
+
+class PreguntasRespuestasMedio(pygame.sprite.Sprite): # Esta clase abre los txt de preguntas medio y genera una pregunta y sus respuestas
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        global a #Esta variable guardará la respuesta correcta
+        global bancoRespuestas #Este diccionario guardará las cuatro respuestas generadas
+
+        # Se inicializan todas las variables------------------
+
+        self.miArchivo2 = open('Preguntas medium.txt', 'r') #Se abren la preguntas .txt
+        self.contenidoArchivo2 = self.miArchivo2.read()
+        self.miArchivo2.close()
+        self.correctoPm = self.contenidoArchivo2.split('\n')
+
+        self.miArchivo2 = open('Respuestas medium.txt', 'r') #Se abren la respuestas .txt
+        self.contenidoArchivo2 = self.miArchivo2.read()
+        self.miArchivo2.close()
+        self.correctoRm = self.contenidoArchivo2.split('\n')
+
+        self.variacion10 = []
+        self.listaCorrectaMedio = []
+        self.posiblesPreM = []
+        self.listarespuestas = []
+        self.posiblesResM = {}
+        self.diccRespuestas = {}
+
+        self.variacion6 =""
+        self.variacion7 =""
+        self.variacion8 =""
+        self.variacion9 =""
+
+        self.primera = 0
+        self.segunda = 0
+        self.tercera = 0
+
+    def preguntasM1(self): # Se genera aleatoriamente una pregunta
+
+        self.posiblesPreM = self.correctoPm
+        self.variacion10 = random.choice(self.posiblesPreM)
+        self.listaCorrectaMedio = self.posiblesPreM.index (self.variacion10)
+
+    def preguntasM2(self):
+
+        self.variacion10 = random.choice(self.posiblesPreM)
+        self.listaCorrectaMedio = self.posiblesPreM.index (self.variacion10)
+
+    def respuestasM(self): # Genera aleatroriamente las 4 respuestas correspondientes a la pregunta
+
+        global a
+
+        for i in [1]:
+
+            for i in [1]:
+
+                self.listarespuestas.append(self.correctoRm[self.primera])
+                self.respuestaCorrecta = self.listarespuestas[0]
+                a = self.respuestaCorrecta # Se guarda la respuesta correcta
+                self.listarespuestas.append(self.correctoRm[self.primera + 1])
+                self.listarespuestas.append(self.correctoRm[self.primera + 2])
+                self.listarespuestas.append(self.correctoRm[self.primera + 3])
+                self.posiblesResM[i] = self.listarespuestas
+                i += 1
+        
+        self.var2 = self.listarespuestas.copy()
+        self.listarespuestas.remove(self.correctoRm[self.primera])
+        self.listarespuestas.remove(self.correctoRm[self.primera + 1])
+        self.listarespuestas.remove(self.correctoRm[self.primera + 2])
+        self.listarespuestas.remove(self.correctoRm[self.primera + 3])
+
+        
+        self.variacion6 = random.choice(self.var2) # Se generan las cuatro respuestas
+        self.var2.remove(self.variacion6)
+        
+        self.variacion7 = random.choice(self.var2)
+        self.var2.remove(self.variacion7)
+        
+        self.variacion8 = random.choice(self.var2)
+        self.var2.remove(self.variacion8)
+        
+        self.variacion9 = random.choice(self.var2)
+        self.var2.remove(self.variacion9)
+ 
+
+    def generarPreguntasMedio(self): #llama la funcion que llena el diccionario de bancoRespuestas y retorna la pregunta y las respuestas
+
+            self.primera=0
+            self.segunda=0
+
+            if self.tercera == 0:
+                self.preguntasM1()
+                self.tercera += 1
+            else:
+                self.preguntasM2()
+
+            while self.segunda <= self.listaCorrectaMedio:
+
+                self.respuestasM()
+                self.primera += 4
+                self.segunda += 1
+        
+            self.comparaRespuestaM()
+            return (self.variacion10,self.variacion6,self.variacion7,self.variacion8,self.variacion9)
+
+    def comparaRespuestaM(self): #Llena el bancoRespuestas con las 4 respuestas
+
+        global bancoRespuestas
+
+        self.diccRespuestas [1] = self.variacion6
+        self.diccRespuestas [2] = self.variacion7
+        self.diccRespuestas [3] = self.variacion8
+        self.diccRespuestas [4] = self.variacion9
+
+        bancoRespuestas = self.diccRespuestas
+
+
+
+class PreguntasRespuestasDificil(pygame.sprite.Sprite): # Esta clase abre los txt de preguntas dificil y genera una pregunta y sus respuestas 
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        global a #Esta variable guardará la respuesta correcta
+        global bancoRespuestas #Este diccionario guardará las cuatro respuestas generadas
+
+        # Se inicializan todas las variables------------------
+                
+        self.miArchivo2 = open ("Preguntas hard.txt", "r") #Se abren la preguntas .txt
+        self.contenidoArchivo2 = self.miArchivo2.read ()
+        self.miArchivo2.close ()    
+        self.correctoP = self.contenidoArchivo2.split("\n")
+
+        self.miArchivo2 = open ("Respuestas hard.txt", "r") #Se abren la respuestas .txt
+        self.contenidoArchivo2 = self.miArchivo2.read ()
+        self.miArchivo2.close () 
+        self.correctoR = self.contenidoArchivo2.split("\n")
+
+        self.variacion5 = []
+        self.listaCorrecta = []
+        self.posiblesPre = []
+        self.listarespuestas = []
+        self.posiblesRes = {}
+        self.diccRespuestas = {}
+
+        self.variacion1 =""
+        self.variacion2 =""
+        self.variacion3 =""
+        self.variacion4 =""
+
+        self.primera = 0
+        self.segunda = 0
+        self.tercera = 0
+
+    def preguntasD1(self): # Se genera aleatoriamente una pregunta
+
+        self.posiblesPre = self.correctoP
+        self.variacion5 = random.choice(self.posiblesPre)
+        self.listaCorrecta = self.posiblesPre.index (self.variacion5)
+
+    def preguntasD2(self):
+
+        self.variacion5 = random.choice(self.posiblesPre)
+        self.listaCorrecta = self.posiblesPre.index (self.variacion5)
+
+    def respuestasD(self): # Genera aleatroriamente las 4 respuestas correspondientes a la pregunta
+
+        global a
+
+        for i in [1]:
+
+            for i in [1]:
+
+                self.listarespuestas.append(self.correctoR[self.primera])
+                self.respuestaCorrecta = self.listarespuestas[0]
+                a = self.respuestaCorrecta # Se guarda la respuesta correcta
+                self.listarespuestas.append(self.correctoR[self.primera + 1])
+                self.listarespuestas.append(self.correctoR[self.primera + 2])
+                self.listarespuestas.append(self.correctoR[self.primera + 3])
+                self.posiblesRes[i] = self.listarespuestas
+                i += 1
+        
+        self.var1 = self.listarespuestas.copy()
+        self.listarespuestas.remove(self.correctoR[self.primera])
+        self.listarespuestas.remove(self.correctoR[self.primera + 1])
+        self.listarespuestas.remove(self.correctoR[self.primera + 2])
+        self.listarespuestas.remove(self.correctoR[self.primera + 3])
+
+        
+        self.variacion1 = random.choice(self.var1) # Se generan las cuatro respuestas
+        self.var1.remove(self.variacion1)
+        
+        self.variacion2 = random.choice(self.var1)
+        self.var1.remove(self.variacion2)
+        
+        self.variacion3 = random.choice(self.var1)
+        self.var1.remove(self.variacion3)
+        
+        self.variacion4 = random.choice(self.var1)
+        self.var1.remove(self.variacion4)
+ 
+
+    def generarPreguntas(self): #llama la funcion que llena el diccionario de bancoRespuestas y retorna la pregunta y las respuestas
+
+            self.primera=0
+            self.segunda=0
+
+            if self.tercera == 0:
+                self.preguntasD1()
+                self.tercera += 1
+            else:
+                self.preguntasD2()
+
+            while self.segunda <= self.listaCorrecta:
+
+                self.respuestasD()
+                self.primera += 4
+                self.segunda += 1
+        
+            self.comparaRespuesta()
+
+            return (self.variacion5,self.variacion1,self.variacion2,self.variacion3,self.variacion4)
+            
+
+    def comparaRespuesta(self): #Llena el bancoRespuestas con las 4 respuestas
+
+        global bancoRespuestas
+
+        self.diccRespuestas [1] = self.variacion1
+        self.diccRespuestas [2] = self.variacion2
+        self.diccRespuestas [3] = self.variacion3
+        self.diccRespuestas [4] = self.variacion4
+
+        bancoRespuestas = self.diccRespuestas
+#-----------------------------------------------------------------------------
+
+# Se inicializan las clases de los personajes y del ambiente del juego---------------------
+
+
+class Soldado (pygame.sprite.Sprite): #Crea la clase soldado
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.ImagenSoldadoUno = pygame.image.load("SolUno.png") #Carga las imagenes del soldado
+        self.ImagenSoldadoDos = pygame.image.load("SolDos.png")
+        self.ImagenSoldadoTres = pygame.image.load("SolTres.png")
+
+        self.ImagenMunicion = pygame.image.load("municion.png") # Carga la imagen de la municion (la de la esquina superior)
+        
+
+        self.listaImagenes=[self.ImagenSoldadoTres, self.ImagenSoldadoDos,self.ImagenSoldadoUno] #Crea una lista de las tres imagenes del soldado
+        self.posImagen = 0
+        
+        self.ImagenSoldado = self.listaImagenes[self.posImagen]
+        self.rect = self.ImagenSoldado.get_rect()
+
+        self.rect.centerx= 100
+        self.rect.centery = 270
+
+        self.vida = True
+        self.listaDisparo = []
+
+        self.tiempoCambio=0
+        self.iniciar=False
+        
+
+        #self.SonidoDisparo = pygame.mixer.Sound("disparo.mp3")# Carga elo sonido del disparo
+
+    def mortusEst(self): # Metodo para parar el comportamiento del soldado
+
+        self.vida = False
+       
+    def dibujar(self, superficie): # Dibuja al soldado segun la posicion dibuja la primera, segunda o tercera imagen
+        if self.vida == True:
+            
+            self.ImagenSoldado = self.listaImagenes[self.posImagen]
+            superficie.blit(self.ImagenSoldado, self.rect)        
+
+    def comportamiento(self, tiempo): # Genera el cambio de imagen del soldado segun el tiempo de juego que recibe como parametro
+
+        if self.iniciar == False:
+            self.tiempoCambio= tiempo+1
+            self.iniciar = True
+        
+        if self.vida == True:
+
+            if self.tiempoCambio == tiempo:
+                self.posImagen += 1
+                self.tiempoCambio += 1
+
+                if self.posImagen > len(self.listaImagenes)-1:
+                    self.posImagen = 0
+
+    def disparo(self): # Llama la clase proyectil y le envía los parametros de posicion y la imagagen. Crea la bala y la mete en la listaDisparo y suena el disparo
+        
+        disparoSoldado= Proyectil(self.rect.centerx+27,self.rect.centery+20, "bala.png", True)
+        self.listaDisparo.append(disparoSoldado)
+        #self.SonidoDisparo.play()
+
+
+    def dibujarMunicion(self, superficie): # Dibuja La municion cada vez que se gasta una bala
+
+        if len(listaMunicion) == 4:
+            superficie.blit(self.ImagenMunicion, (1100, 50))
+            superficie.blit(self.ImagenMunicion, (1150, 50))
+            superficie.blit(self.ImagenMunicion, (1200, 50))
+
+        elif len(listaMunicion) == 3:
+            superficie.blit(self.ImagenMunicion, (1100, 50))
+            superficie.blit(self.ImagenMunicion, (1150, 50))
+
+        elif len(listaMunicion) == 2:
+            superficie.blit(self.ImagenMunicion, (1100, 50))
+
+        else:
+            pass
+
+class Enemigo (pygame.sprite.Sprite): #Crea la clase Enemigo y recibe los parametros de pocision, imagen, velocidad y segundos
+    def __init__(self,posx,posy, imagenUno, imagenDos, imagenTres, imagenCuatro, velocidad, segundos):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.ImagenEnemigoUno = pygame.image.load(imagenUno) # Cargan las cuatro imagenes de cada enemigo para simular el movimiento
+        self.ImagenEnemigoDos = pygame.image.load(imagenDos)
+        self.ImagenEnemigoTres = pygame.image.load(imagenTres)
+        self.ImagenEnemigoCuatro = pygame.image.load(imagenCuatro)
+
+        self.listaImagenes=[self.ImagenEnemigoUno, self.ImagenEnemigoDos, self.ImagenEnemigoTres, self.ImagenEnemigoCuatro] # Crea la lista de las 4 imagenes
+        self.posImagen = 0
+        
+        self.ImagenEnemigo = self.listaImagenes[self.posImagen]
+        self.rect = self.ImagenEnemigo.get_rect()
+
+        self.velocidad = velocidad
+
+        self.rect.top = posy
+        self.rect.left = posx
+        
+        self.tiempoCambio = segundos
+        self.iniciar=False
+
+        self.contador = 0
+
+        self.conquista= False # Permite que el enemigo avance, cuando cambia este valor, el enemigo se detiene
+
+    def dibujar(self, superficie): # Dibuja en la ventana una imagen cada que cambia la posicion
+
+        self.ImagenEnemigo = self.listaImagenes[self.posImagen]
+        superficie.blit(self.ImagenEnemigo, self.rect)
+
+    def comportamiento(self, tiempo): # Genera el cambio de imagen según el tiempo de juego, recibe como parametro el tiempo de juego
+
+        if self.iniciar == False:
+            self.tiempoCambio= tiempo+1
+            self.iniciar = True
+        
+        if self.conquista == False:
+            
+            self.__movimientoLateral()
+            
+            if self.tiempoCambio == tiempo:
+                self.posImagen += 1
+                self.tiempoCambio += 1
+
+                if self.posImagen > len(self.listaImagenes)-1:
+                    self.posImagen = 0
+
+    def __movimientoLateral(self): # Genera el movimiento latera restandole a la posicion horizontal de las imagenes
+
+        self.rect.left = self.rect.left - self.velocidad              
+
+
+class Proyectil (pygame.sprite.Sprite): #Crea la clase Proyectil y recibe los parametros de pocision, ruta y personaje
+    def __init__(self, posx, posy, ruta, personaje):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.ImagenBala = pygame.image.load(ruta) #Carga la imagen de la bala
+        self.ImagenFuego = pygame.image.load("fuego.png") #Carga la imagen del fuego
+
+        self.rect = self.ImagenBala.get_rect()
+
+        self.velocidadDisparo = 5
+        
+
+        self.rect.top = posy
+        self.rect.left = posx
+
+        self.disparoPersonaje = personaje
+
+    def trayectoria (self): #Genera el movimiento de la bala
+
+        if self.disparoPersonaje == True:
+            self.rect.left = self.rect.left + self.velocidadDisparo
+            
+    def dibujar(self, superficie): #Dibuja la bala y el fuego en la ventana
+
+        superficie.blit(self.ImagenBala, self.rect)
+        superficie.blit(self.ImagenFuego,(140,260))
+
+class Ambiente (pygame.sprite.Sprite): #Crea la clase Ambiente, la cual dibujara y moverá el fondo del bosque
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.ImagenFondoUno = pygame.image.load("mañana.png") #Se cargan las cinco imagenes de diferentes horas del día
+        self.ImagenFondoDos = pygame.image.load("medioDia.png")
+        self.ImagenFondoTres = pygame.image.load("tarde.png")
+        self.ImagenFondoCuatro = pygame.image.load("anochecer.png")
+        self.ImagenFondoCinco = pygame.image.load("noche.png")
+
+        self.rectUno = self.ImagenFondoUno.get_rect()
+        self.rectDos = self.ImagenFondoDos.get_rect()
+        self.rectTres = self.ImagenFondoUno.get_rect()
+        self.rectCuatro = self.ImagenFondoDos.get_rect()
+        self.rectCinco = self.ImagenFondoUno.get_rect()        
+
+
+        self.rectUno.top = 0
+        self.rectUno.left = 0
+
+        self.rectDos.top = 0
+        self.rectDos.left = 1300
+
+        self.rectTres.top = 0
+        self.rectTres.left = 2600
+
+        self.rectCuatro.top = 0
+        self.rectCuatro.left = 3900
+
+        self.rectCinco.top = 0
+        self.rectCinco.left = 5200
+
+        self.velocidad = 1     
+        
+
+    def trayectoria (self): # Se le indica al programa que mueva las imágenes hacia la izquierda
+
+        self.rectUno.left = self.rectUno.left - self.velocidad
+        self.rectDos.left = self.rectDos.left - self.velocidad
+        self.rectTres.left = self.rectTres.left - self.velocidad
+        self.rectCuatro.left = self.rectCuatro.left - self.velocidad
+        self.rectCinco.left = self.rectCinco.left - self.velocidad
+        
+            
+    def dibujar(self, superficie): # Dibuja las imágenes en la ventana y se varía el orden según si es de dia o noche
+
+        if self.rectUno.left < -5199:
+
+            self.rectUno.left = 5200
+            self.rectDos.left = 3900
+            self.rectTres.left = 2600
+            self.rectCuatro.left = 1300
+            self.rectCinco.left = 0
+            
+            
+        elif self.rectCinco.left < -5199:
+
+            self.rectUno.left = 0
+            self.rectDos.left = 1300
+            self.rectTres.left = 2600
+            self.rectCuatro.left = 3900
+            self.rectCinco.left = 5200
+            
+        superficie.blit(self.ImagenFondoUno, self.rectUno)
+        superficie.blit(self.ImagenFondoDos, self.rectDos)
+        superficie.blit(self.ImagenFondoTres, self.rectTres)
+        superficie.blit(self.ImagenFondoCuatro, self.rectCuatro)
+        superficie.blit(self.ImagenFondoCinco, self.rectCinco)
+
+#-------------------------------------------------------------------------------------------------------------------
+
+# Se declaran las funciones para algunas acciones y para crear las ventanas que llamarán a las clases
+    
+def guardar1(us,pun): # Esta función guarda en un txt el usuario con su respectivo puntaje, recibe el parametro us(usuario) y pun(puntaje)
+    guardar=open("UsuariosPuntajes.txt", "a")
+    guardar.write(us+" "+str(pun)+"\n")
+    guardar.close()
+    
+def importar1(): #Esta funcion carga los usuarios y puntajes existentes cada vez que se inicia el juego para saber los records
+
+    global listaordenada
+    #global lista
+
+    guardar=open("UsuariosPuntajes.txt","r") # Abre, lee y guarda los usuarios y contrase{as en una lista
+    contenido=guardar.read()
+    guardar.close()
+
+    lista=contenido.split() # Se separan los elementosa de la lista contenido
+
+    for z in range(len(lista)): # se añade la variable global de usuarios los usuarios del txt
+        if z%2==0:
+            usuarios.append(lista[z])
+        if z%2!=0:
+            puntajes.append(lista[z]) # se añade la variable global de puntajes los puntajes del txt
+    for zi in range(len(usuarios)):
+        diccionarioPuntajes[usuarios[zi]]=puntajes[zi] # Se guardan los valores de la lista usuarios y se les asigna sus respectivos puntajes en el diccionarioPuntajes
+
+    listaordenada = sorted(diccionarioPuntajes.items(), key =itemgetter(1), reverse = True) #Se ordenan los puntajes de mayor a menor para los records
+
+def cargarEnemigoUno(velocidad, segundos): # Esta funcion carga las cuatro imagenes del lobo y las envia a la clase Enemigo con la velocidad y los segundos
+    
+    enemigo = Enemigo(1400,250,"LoboUno.png","LoboDos.png","LoboTres.png", "LoboDos.png", velocidad, segundos)
+    listaEnemigos.append(enemigo) # Creado el enemigo se mete en la listaEnemigos para saber cuándo existe un enemigo
+
+def cargarEnemigoDos(velocidad, segundos): # Esta funcion carga las cuatro imagenes del oso y las envia a la clase Enemigo con la velocidad y los segundos
+    
+    enemigo = Enemigo(1400,220,"OsoDerecha.png","OsoIzquierda.png","OsoMedio.png", "OsoMedioEstirado.png", velocidad, segundos)
+    listaEnemigos.append(enemigo) # Creado el enemigo se mete en la listaEnemigos para saber cuándo existe un enemigo
+
+def cargarEnemigoTres(velocidad, segundos): # Esta funcion carga las cuatro imagenes del oso(antes había otro enemigo) y las envia a la clase Enemigo con la velocidad y los segundos
+    
+    enemigo = Enemigo(1400,220,"OsoDerecha.png","OsoIzquierda.png","OsoMedio.png", "OsoMedioEstirado.png",velocidad, segundos)
+    listaEnemigos.append(enemigo) # Creado el enemigo se mete en la listaEnemigos para saber cuándo existe un enemigo
+
+def detenerTodo(): # Esta función detiene el movimiento del enemigo
+
+    for enemigo in listaEnemigos:
+        enemigo.conquista = True    
+
+# A partir de aquí se crean las funciones que dibujaran las ventanas y llamaran las clases de los botones
+
+def menu(): # Esta funcion crea la ventana Principal de menú para que el usuario decida qué hacer
+    
+    instrucciones1 = Instrucciones(550, 450, 240, 50) #Se crea una variable de la clase Instrucciones y se le envían los parametros de posicion y tamaño
+    jugar1= Jugar(550, 390, 240, 50) #Se crea una variable de la clase Jugar y se le envían los parametros de posicion y tamaño
+    records1= Records(550, 510, 240, 50) #Se crea una variable de la clase Records y se le envían los parametros de posicion y tamaño
+
+    input_boxes = [instrucciones1,jugar1,records1] # Esta lista tendrá las tres clases anteriores
+    done = False
+
+    while not done:# Se crea un ciclo infinito para leer y generar las acciones que sucedan en la pantalla, teclado o mouse
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:# Si se oprime el boton cerrar, cerrará la ventana
+                done = True 
+
+            for box in input_boxes: # este ciclo llamará el método común de los tres botones o clases el cual lee la acción de boton activado.
+                box.handle_event(event)
+
+        for box in input_boxes:
+            box.update()
+
+        ventana.blit(pygame.image.load("portada.png"),(0,0)) # Esta linea dibuja en la ventana la imagen de portada que se carga y se le asigna una posicion
+
+        for box in input_boxes: # este ciclo llamará el método común de los tres botones o clases el cual dibuja los botones.
+            box.draw(ventana)
+
+        pygame.display.flip() #Actualiza la ventana
+        
+    pygame.quit() # Esto cierra la ventana
+
+def ingresar(): # Esta funcion crea la ventana Ingresar la cual pide ingresar el nombre del usuario y permitirá el paso al juego 
+
+    ingresar1 = Ingresar1(520, 360, 200, 40) #Se crea una variable de la clase Ingresar1 y se le envían los parametros de posicion y tamaño
+    ingresartexto = Ingresartexto(400, 260, 400, 80) #Se crea una variable de la clase IngresarTexto y se le envían los parametros de posicion y tamaño
+    ingresaraceptar= Ingresaraceptar(520, 410, 50, 40) #Se crea una variable de la clase IngresarAceptar y se le envían los parametros de posicion y tamaño
+    saliringresar=Salir(520,590,200,40) #Se crea una variable de la clase Salir y se le envían los parametros de posicion y tamaño
+    input_boxes = [ingresar1,ingresartexto,ingresaraceptar,saliringresar] # Esta lista tendrá las cuatro clases anteriores
+    done = False
+
+    while not done: # Se crea un ciclo infinito para leer y generar las acciones que sucedan en la pantalla, teclado o mouse
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: # Si se oprime el boton cerrar, cerrará la ventana
+                done = True
+            for box in input_boxes:  # Este ciclo llamará el método común de los cuatro botones o clases el cual lee la acción de boton activado.
+                box.handle_event(event)
+
+        for box in input_boxes:
+            box.update()
+
+        ventana.blit(pygame.image.load("fondoInicio (2).png"),(0,0)) # Esta linea dibuja en la ventana la imagen de fondo que se carga y se le asigna una posicion
+        for box in input_boxes: # este ciclo llamará el método común de los cuatro botones o clases el cual dibuja los botones o cuadros de texto
+            box.draw(ventana)
+
+        pygame.display.flip()#Actualiza la ventana
+
+    pygame.quit() # Esto cierra la ventana
+
+     
+def instrucciones(): # Esta funcion crea la ventana instrucciones la cual mostrara las instrucciones
+
+    texto = FONT_MENU.render("El juego consta de una serie de preguntas de seleccion multiple,",1,red) #Crea un texto 
+    texto2= FONT_MENU.render("que son interrogantes sobre el lenguaje de programación Python.",1,red) #Crea un texto
+    salirinstrucciones=Salir(680,590,200,40) #Se crea una variable de la clase Salir y se le envían los parametros de posicion y tamaño
+    siguiente=Siguiente(350,590,200,40) #Se crea una variable de la clase Siguiente y se le envían los parametros de posicion y tamaño
+    cuadropreguntas= pygame.image.load("cuadroInstrucciones.png") # Se craga la imagen de explicacion del juego
+    input_boxes = [salirinstrucciones,siguiente] # Esta lista tendrá las  variables de clases
+    rectangulo = pygame.Rect(195,45,875,525) # Crea un rectangulo
+    done = False
+    
+    while done == False: # Se crea un ciclo infinito para leer y generar las acciones que sucedan en la pantalla, teclado o mouse
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: # Si se oprime el boton cerrar, cerrará la ventana
+                done = True
+
+            for box in input_boxes:# Este ciclo llamará el método común de los dos botones o clases el cual lee la acción de boton activado.
+                box.handle_event(event)
+
+        for box in input_boxes:
+            box.update()
+
+        ventana.blit(pygame.image.load("fondoInicio (2).png"),(0,0))# Esta dibuja en la ventana la imagen de fondo que se carga y se le asigna una posicion
+        for box in input_boxes: # este ciclo llamará el método común de los dos botones o clases el cual dibuja los botones o cuadros de texto
+            box.draw(ventana)
+
+        pygame.draw.rect(ventana, white,rectangulo) #Se dibuja el rectangulo en la ventana y se le da el color
+        ventana.blit(cuadropreguntas, (250,130)) #Se dibuja la imagen en la venmtana y con una posicion
+        ventana.blit(texto,(245,50)) #Se dibuja el texto uno
+        ventana.blit(texto2,(240,80)) #Se dibuja el texto 2
+        pygame.display.flip() # Se actualiza la ventana
+        
+        
+    pygame.quit() # Esto cierra la ventana
+    
+def instrucciones1(): # Esta funcion crea la segunda ventana instrucciones 
+
+    texto = FONT_MENU.render("A medida que avance y responda más preguntas, la velocidad",1,red) #Crea un texto
+    texto2= FONT_MENU.render("de las amenazas aumentará. En caso de ser alcanzado por estas, perderá.",1,red) #Crea un texto
+    salirinstrucciones=Salir(780,590,200,40) #Se crea una variable de la clase Salir y se le envían los parametros de posicion y tamaño
+    atras=Atras1(360,590,200,40) #Se crea una variable de la clase Atras1 y se le envían los parametros de posicion y tamaño
+    input_boxes = [salirinstrucciones,atras]  # Esta lista tendrá las  variables de clases
+    cuadroVelocidad= pygame.image.load("velocidad.png") # Se craga la imagen de explicacion del juego
+    rectangulo = pygame.Rect(175,60,915,490)  # Crea un rectangulo
+    done = False
+
+    while done == False: # Se crea un ciclo infinito para leer y generar las acciones que sucedan en la pantalla, teclado o mouse
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: # Si se oprime el boton cerrar, cerrará la ventana
+                done = True
+
+            for box in input_boxes: # Este ciclo llamará el método común de los dos botones o clases el cual lee la acción de boton activado.
+                box.handle_event(event)
+
+        for box in input_boxes:
+            box.update()
+
+        ventana.blit(pygame.image.load("fondoInicio (2).png"),(0,0)) # Esta dibuja en la ventana la imagen de fondo que se carga y se le asigna una posicion
+        for box in input_boxes: # este ciclo llamará el método común de los dos botones o clases el cual dibuja los botones o cuadros de texto
+            box.draw(ventana)
+
+        pygame.draw.rect(ventana, white,rectangulo) #Se dibuja el rectangulo en la ventana y se le da el color
+        ventana.blit(cuadroVelocidad, (250,150)) #Se dibuja la imagen en la venmtana y con una posicion
+        ventana.blit(texto,(260,70)) #Se dibuja el texto uno
+        ventana.blit(texto2,(195,100)) #Se dibuja el texto 2
+        
+        pygame.display.flip()# Se actualiza la ventana
+        
+    pygame.quit() # Esto cierra la ventana
+
+def records(): # Esta funcion crea la ventana Records 
+
+    if listaordenada: # Este condicional pregunta si listaordenada tiene elementos
+
+        if len(listaordenada) == 1: #Si tiene uno se crea un texto que dice el nombre y el puntaje y dos textos que no se leerán
+
+            texto = FONT_MENU.render("El jugador "+ listaordenada[0][0]+" ocupa el primer lugar con el puntaje "+listaordenada[0][1],1,white)
+            texto1 = FONT_MENU.render("-",1,blue)
+            texto2 = FONT_MENU.render("-",1,blue)
+
+        elif len(listaordenada) == 2: #Si tiene dos se crean dos textos que dice el nombre y el puntaje y un texto que no se leerá
+
+            texto = FONT_MENU.render("El jugador "+ listaordenada[0][0]+" ocupa el primer lugar con el puntaje "+listaordenada[0][1],1,white)
+            texto1 = FONT_MENU.render("El jugador "+ listaordenada[1][0]+" ocupa el segundo lugar con el puntaje "+listaordenada[1][1],1,white)
+            texto2 = FONT_MENU.render("-",1,blue)
+
+        else: #Si tiene más de dos se crearán tres textos con los tres primeros nombres y puntajes más altos 
+
+            texto = FONT_MENU.render("El jugador "+ listaordenada[0][0]+" ocupa el primer lugar con el puntaje "+listaordenada[0][1],1,white)
+            texto1 = FONT_MENU.render("El jugador "+ listaordenada[1][0]+" ocupa el segundo lugar con el puntaje "+listaordenada[1][1],1,white)
+            texto2 = FONT_MENU.render("El jugador "+ listaordenada[2][0]+" ocupa el tercer lugar con el puntaje "+listaordenada[2][1],1,white)
+
+    else: # Si la lista está vacía se crearán tres textos y solo uno se leera, y dira que no hay puntajes aún
+
+        texto = FONT_MENU.render("                       Aún no existen puntajes!",1,white)
+        texto1 = FONT_MENU.render("-",1,blue)
+        texto2 = FONT_MENU.render("-",1,blue)
+
+    rectangulo = pygame.Rect(250,80,800,300) # Se crea un rectangulo
+    salirrecords=Salir(550,590,200,40) #Se crea una variable de la clase Salir y se le envían los parametros de posicion y tamaño
+    input_boxes = [salirrecords] # Esta lista tendrá la variable de  la clase Salir
+    done = False
+
+    while done == False: # Se crea un ciclo infinito para leer y generar las acciones que sucedan en la pantalla, teclado o mouse
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: # Si se oprime el boton cerrar, cerrará la ventana
+                done = True
+            for box in input_boxes: # Este ciclo llamará el método del boton o clases el cual lee la acción de boton activado.
+                box.handle_event(event)
+
+        for box in input_boxes:
+            box.update()
+
+        ventana.blit(pygame.image.load("fondoInicio (2).png"),(0,0)) # Esta dibuja en la ventana la imagen de fondo que se carga y se le asigna una posicion
+        
+        for box in input_boxes: # este ciclo llama el metodo dibujar d ela clase Salir y dibuja el boton
+            box.draw(ventana)
+        
+        pygame.draw.rect(ventana, blue,rectangulo) #Se dibuja el rectangulo en la ventana y se le da el color 
+        ventana.blit(texto,(330,150)) #Se dibuja el texto uno
+        ventana.blit(texto1,(330,200)) #Se dibuja el texto dos
+        ventana.blit(texto2,(330,250)) #Se dibuja el texto tres
+        pygame.display.flip() # Se actualiza la ventana
+        
+        
+    pygame.quit() # Esto cierra la ventana
+
+#------------------------------------------------------------------------------------------------------------------
+
+# Aquí se creará la ventana del juego como tal después de haber ingresado 
+
+def preguntasProgramacion(): # Esta funcion creará la ventana, fondo, personajes, botones, sonido y textos del juego 
+
+    #Estas tres variables son para saber si hay balas disparadas y para decir si acertaron o no
+    global listaMunicion
+    global acertado
+    global incorrecto
+
+    #Estas tres variables nos permitirán acceder a la respuesta correcta al banco de respuestas y al nombre de usuario
+    global a
+    global bancoRespuestas
+    global text2
+
+    #pygame.mixer.music.load("cancion.mp3") # Se carga la musica de fondo
+    #pygame.mixer.music.play(5) #Se reproduce la musica de fondo
+    
+    gameOver = WIDE_FONT.render("Game Over", True, white) # Se crea una fuente de Game Over
+    
+    
+    
+    fondo= Ambiente() #Se crea la variable fondo con la clase Ambiente
+    jugador= Soldado() #Se crea la variable jugador con la clase Soldado
+
+    #se crean tres variables con las clases de preguntas 
+    pregFacil= PreguntasRespuestasFacil() 
+    pregMedio = PreguntasRespuestasMedio()
+    pregDificil = PreguntasRespuestasDificil()
+
+    #Se crean variables de control para saber cuando se pierda, la dificultad, el nivel, numero de pregunta, aciertos y puntaje 
+    dificultad = 1
+    cargarEnemigoUno(dificultad,1)
+    
+    enJuego= True
+    nivel = pygame.time.Clock()
+     
+    bien=0
+    pregunta=1
+    mato = 1
+
+    uno=0
+    puntaje = 0
+
+    guarda = True
+
+    while True: # Se crea el ciclo infinito pára leer las acciones de la ventana
+
+        
+        if bien <= 3: # Se comprueba el numero de aciertos y se aumenta la dificultad 
+            pass
+        else:
+            dificultad += 1
+            bien = 0
+
+        if dificultad > 3: # Finaliza el juego si se superan los tres niveles
+            enJuego = False
+            
+        ventana.fill(black) #Crea la ventana con fondo negro       
+        nivel.tick(100) # Permite la velocidad de juego, se puede relentizar, pero no se hará
+        ventana.blit(gameOver, (250, 250)) #Se dibuja el texto de Game over con la fuenta antes creada
+        
+
+
+        tiempo= int(pygame.time.get_ticks()/250) # se calcula el tiempo que transcurre desde que se abre el programa y servirá para generar el movimiento del soldado
+        
+        for event in pygame.event.get():
+
+            if event.type == QUIT: # Lee si se activa el boton de cerrar
+                pygame.quit()
+                sys.exit()
+
+        if len(listaMunicion)== 0: # Le pone cuatro elementos a la lista de munición para que se dibujen en principio las tres municiones en la esquina superior
+
+            listaMunicion=[True,True,True,True]
+        
+        if enJuego == True: # Realiza todas las acciones necesarias mientras el jugador está activo, es decir, no haya muerto
+
+            if uno == 0 and dificultad == 1: # Genera las preguntas llamando este método de la clase, según la dificultad
+                j,k,l,m,n = pregFacil.generarPreguntasFacil() # Se llama al metodo y este retorna cinco strings, la pregunta y las cuatro respuestas
+                uno += 1
+
+            elif uno == 0 and dificultad == 2:
+                j,k,l,m,n = pregMedio.generarPreguntasMedio()
+                uno += 1
+
+            elif uno == 0 and dificultad == 3:
+                j,k,l,m,n = pregDificil.generarPreguntas()
+                uno += 1
+                
+            input_box1 = InputBox1(60, 500, 550, 40,k) # Se crean 6 variables con las clases InputBox o botones y se les envía posicion, tamaño y texto de los botones
+            input_box2 = InputBox2(60, 560, 550, 40,l)
+            input_box3 = InputBox3(680, 500, 550, 40,m)
+            input_box4 = InputBox4(680, 560, 550, 40,n)
+            input_boxPregunta = InputBoxPregunta(50, 400, 1200, 60,j)
+            input_preguntas = InputPreguntas(500, 615, 70, 30,pregunta)
+           
+            input_boxes = [input_box1,input_box2,input_box3,input_box4,input_boxPregunta,input_preguntas] #Se llena la lista con las seis variables 
+
+            for box in input_boxes: # Este ciclo llamará el método común de los cinco botones o clases y  lee la acción de boton activado.
+                box.handle_event(event)
+
+            #for box in input_boxes:
+            #   box.update()
+            
+            if acertado == 1: # Pregunta si acertó y realiza lo siguiente
+
+                jugador.disparo() # Llama el método disparo de la clase Soldado
+                pygame.time.delay(80) # Retrasa la lectura de accion para que no se disparen muchas balas
+                listaMunicion.pop(0) # Elimina una bala de la listaMunicion
+                acertado = 0 #Reinicia el contador de acertado 
+                pregunta +=1 # Aumenta el numero de pregunta del texto que dice en qué pregunta va
+                mato = pregunta # Actualiza la variable para saber cuántos morracos lleva
+                uno = 0 # reinicia la variable para que se genere otra pregunta 
+
+            elif acertado == 2: #Lo mismo que arriba
+
+                jugador.disparo()
+                pygame.time.delay(80)
+                listaMunicion.pop(0)
+                acertado = 0
+                pregunta +=1
+                mato = pregunta
+                uno = 0
+
+            elif acertado == 3: #Lo mismo que arriba
+
+                jugador.disparo()
+                pygame.time.delay(80)
+                listaMunicion.pop(0)
+                acertado = 0
+                pregunta +=1
+                mato = pregunta
+                uno = 0
+
+            elif acertado == 4: #Lo mismo que arriba
+
+                jugador.disparo()
+                pygame.time.delay(80)
+                listaMunicion.pop(0)
+                acertado = 0
+                pregunta +=1
+                mato = pregunta
+                uno = 0
+
+            elif incorrecto == 1: # Pregunta si erró en la respuesta y realiza lo siguiente
+
+                jugador.disparo() # Llama el método disparo de la clase Soldado
+                pygame.time.delay(80) # Retrasa la lectura de accion para que no se disparen muchas balas
+                listaMunicion.pop(0) # Elimina una bala de la listaMunicion
+                pregunta +=1 # Aumenta el numero de pregunta del texto que dice en qué pregunta va
+                incorrecto = 0 #Reinicia el contador de incorrecto
+                uno = 0 # reinicia la variable para que se genere otra pregunta 
+                 
+
+            elif incorrecto == 2: #Lo mismo que arriba
+
+                jugador.disparo()
+                pygame.time.delay(80)
+                listaMunicion.pop(0)
+                pregunta +=1
+                incorrecto = 0
+                uno = 0
+                
+
+            elif incorrecto == 3: #Lo mismo que arriba
+
+                jugador.disparo()
+                pygame.time.delay(80)
+                listaMunicion.pop(0)
+                pregunta +=1
+                incorrecto = 0
+                uno = 0
+                
+
+            elif incorrecto == 4: #Lo mismo que arriba
+
+                jugador.disparo()
+                pygame.time.delay(80)
+                listaMunicion.pop(0)
+                pregunta +=1
+                incorrecto = 0
+                uno = 0
+                
+
+            fondo.dibujar(ventana) #dibuja las imagenes de la clase Ambiente
+            fondo.trayectoria() #genera el movimiento de las imagenes de la clase Ambiente
+
+            for box in input_boxes: #Este ciclo llamará el método común de los botones o clases de la lista de clases y dibuja los botones o cuadros de texto
+                box.draw(ventana)
+
+        
+            jugador.comportamiento(tiempo) # LLama el método comportamiento de la clase Soldado lo que lo poone en movimiento
+            jugador.dibujar(ventana) # LLama el método dibujar de la clase Soldado lo que dibuja ala soldado
+            jugador.dibujarMunicion(ventana) # LLama el método dibujarMunicion de la clase Soldado y dibuja la municion restante(esquina superior derecha)
+        
+        if len(jugador.listaDisparo) > 0: # Si se ha disparado una bala indica que hay un elemento en la lista disparo y entra en este condicional
+
+            for i in jugador.listaDisparo: # Se recorre la lista disparo
+                i.dibujar(ventana) #Se dibuja la bala en la ventana
+                i.trayectoria() # Se activa el metodo trayectoria el cual genera el movimiento
+
+                if i.rect.left > 1290: # Si el proyectil no golpea a ningún enemigo se desaparece al llegar a esta posicion
+                    jugador.listaDisparo.remove(i)
+                else: # Si el proyectil si choca contra un enemigo se genera lo siguiente
+                    for enemigo in listaEnemigos: # Se pregunta si existe un enemigo
+                        if i.rect.colliderect(enemigo.rect): # se pregunta si se estrelló la bala contra el enemigo
+
+                            jugador.listaDisparo.remove(i) # se elimina la bala
+
+                            if mato == pregunta: #Si acertó, mató es igual al numero de pregunta, si no, la variable mató es diferente y no entra en este ciclo
+                                
+                                listaEnemigos.remove(enemigo) #Se elimina el enemigo de la lista enemigo, lo cual no permite que se dibuje más
+                                
+                                if dificultad == 1: # Se pregunta la dificultad para indicar qué clase de enemigo se cargue
+                                    
+                                    cargarEnemigoUno(dificultad,tiempo)                                  
+                                    bien += 1 # Aumenta la variable bien que después de tres aumenta la dificultad
+                                    puntaje +=1 # Esta variable lleva el registro de los enemigos matados, lo que indica el puntaje del usuario
+
+                                elif dificultad == 2: # Lo mismo de arriba pero en dificultad dos
+                                    
+                                    cargarEnemigoDos(dificultad,tiempo)
+                                    bien += 1
+                                    puntaje +=1
+                                        
+                                elif dificultad >= 3: # Lo mismo de arriba pero en dificultad tres
+                                    cargarEnemigoTres(dificultad, tiempo)
+                                    bien += 1
+                                    puntaje +=1
+                                    
+
+                    
+
+        if len(listaEnemigos)> 0: # Este condicional pregunta si existe un enemigo en la listaEnemigos
+
+            for enemigo in listaEnemigos: # Recorre la lista
+
+                enemigo.comportamiento(tiempo) #Llama el metodo comportamiento de la clase Enemigo, lo cual lo pone en movimiento y le envía el tiempo
+                enemigo.dibujar(ventana) # Llama el metodo dibujar de la clase Enemigo, lo cual dibuja al enemigo en la ventana
+                
+
+                if enemigo.rect.colliderect(jugador.rect): # Pregunta si el enemigo choca contra el soldado
+                    jugador.mortusEst()# Activa el metodo de soldado muerto de la clase Soldado, lo cual hace que el soldado deje de moverse
+                    enJuego= False # Saca al juego del ciclo ya que no está en juego 
+                    detenerTodo() # Llama a la función detener todo, la cual detiene el movimiento del enemigo
+                    listaEnemigos.remove(enemigo) # Se borrá el enemigo de la lista enemigo
+
+        if enJuego == False: # Si el jugador pierde antes de salir del ciclo se hace lo siguiente
+
+            #pygame.mixer.music.stop() # Se detiene la musica
+
+            if guarda: # Esta variable está activa para caundo pierda
+                if text2 == "": # Si el NickName no fue ingresado se asigna uno por defecto
+                    text2="N.N."
+                puntajes.append(puntaje)#Se captura el puntaje final alcanzado por el usuario y se añade a la lista puntajes
+                guardar1(text2,puntaje) # Se llama a la funcion guardar y se le envían los parametros de text2 o usuario y puntaje
+                guarda = False # Se cambia la variable para que no repita esto 
+                
+        
+        pygame.display.update()#Se cierran los modulos de pygame inicializados 
+
+#------------------POR FINNNNNNN--------------------------------
+
+#Aquí inicia todo
+
+if __name__ != "__menu__":
+
+    menu()
